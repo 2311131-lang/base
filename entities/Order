@@ -1,0 +1,102 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "order_code": {
+      "type": "string",
+      "title": "M\u00e3 \u0111\u01a1n h\u00e0ng"
+    },
+    "customer_name": {
+      "type": "string",
+      "title": "T\u00ean kh\u00e1ch h\u00e0ng"
+    },
+    "customer_phone": {
+      "type": "string",
+      "title": "S\u1ed1 \u0111i\u1ec7n tho\u1ea1i"
+    },
+    "customer_email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "address": {
+      "type": "string",
+      "title": "\u0110\u1ecba ch\u1ec9 \u0111\u1ea7y \u0111\u1ee7"
+    },
+    "city": {
+      "type": "string",
+      "title": "T\u1ec9nh/Th\u00e0nh ph\u1ed1"
+    },
+    "district": {
+      "type": "string",
+      "title": "Qu\u1eadn/Huy\u1ec7n"
+    },
+    "ward": {
+      "type": "string",
+      "title": "Ph\u01b0\u1eddng/X\u00e3"
+    },
+    "street": {
+      "type": "string",
+      "title": "S\u1ed1 nh\u00e0/T\u00ean \u0111\u01b0\u1eddng"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "COD",
+        "bank_transfer",
+        "momo"
+      ],
+      "title": "Ph\u01b0\u01a1ng th\u1ee9c thanh to\u00e1n"
+    },
+    "bank_name": {
+      "type": "string",
+      "title": "T\u00ean ng\u00e2n h\u00e0ng"
+    },
+    "quantity": {
+      "type": "number",
+      "title": "S\u1ed1 l\u01b0\u1ee3ng"
+    },
+    "total": {
+      "type": "number",
+      "title": "T\u1ed5ng ti\u1ec1n"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "shipping",
+        "delivered",
+        "cancelled"
+      ],
+      "title": "Tr\u1ea1ng th\u00e1i",
+      "default": "pending"
+    },
+    "items": {
+      "type": "array",
+      "title": "S\u1ea3n ph\u1ea9m",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "order_code",
+    "customer_name",
+    "customer_phone",
+    "address",
+    "payment_method",
+    "total",
+    "status"
+  ]
+}

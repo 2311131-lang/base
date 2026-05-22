@@ -1,0 +1,29 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "title": "\u0110\u00e1nh gi\u00e1 sao"
+    },
+    "comment": {
+      "type": "string",
+      "title": "Nh\u1eadn x\u00e9t"
+    },
+    "user_name": {
+      "type": "string",
+      "title": "T\u00ean ng\u01b0\u1eddi d\u00f9ng"
+    },
+    "image_url": {
+      "type": "string",
+      "title": "\u1ea2nh \u0111\u00e1nh gi\u00e1"
+    }
+  },
+  "required": [
+    "rating",
+    "comment",
+    "user_name"
+  ]
+}
