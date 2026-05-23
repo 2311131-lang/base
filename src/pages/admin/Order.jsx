@@ -1,33 +1,55 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { STATUS_MAP, formatPrice } from "@/lib/productData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Package, Clock, MapPin, Phone, CreditCard } from "lucide-react";
+import { Package, Clock, MapPin, Phone, CreditCard, RefreshCw } from "lucide-react";
 import moment from "moment";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    base44.entities.Order.list("-created_date").then(data => {
+  const fetchOrders = useCallback(async (showSpinner = false) => {
+    if (showSpinner) setRefreshing(true);
+    try {
+      const data = await base44.entities.Order.list("-created_date");
       setOrders(data);
+    } catch (err) {
+      console.error("Lỗi tải đơn hàng:", err);
+    } finally {
       setLoading(false);
-    });
-
-    const unsub = base44.entities.Order.subscribe((event) => {
-      if (event.type === "create") {
-        setOrders(prev => [event.data, ...prev]);
-      } else if (event.type === "update") {
-        setOrders(prev => prev.map(o => o.id === event.id ? event.data : o));
-      } else if (event.type === "delete") {
-        setOrders(prev => prev.filter(o => o.id !== event.id));
-      }
-    });
-    return unsub;
+      if (showSpinner) setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchOrders();
+
+    let unsub;
+    try {
+      unsub = base44.entities.Order.subscribe((event) => {
+        if (event.type === "create") {
+          setOrders(prev => [event.data, ...prev]);
+        } else if (event.type === "update") {
+          setOrders(prev => prev.map(o => o.id === event.id ? event.data : o));
+        } else if (event.type === "delete") {
+          setOrders(prev => prev.filter(o => o.id !== event.id));
+        }
+      });
+    } catch (err) {
+      console.warn("Subscribe không khả dụng, dùng polling:", err);
+    }
+
+    const interval = setInterval(() => fetchOrders(), 30000);
+
+    return () => {
+      if (unsub) unsub();
+      clearInterval(interval);
+    };
+  }, [fetchOrders]);
 
   const updateStatus = async (orderId, newStatus) => {
     await base44.entities.Order.update(orderId, { status: newStatus });
@@ -40,7 +62,16 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Quản lý đơn hàng ({orders.length})</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Quản lý đơn hàng ({orders.length})</h1>
+        <button
+          onClick={() => fetchOrders(true)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+          Làm mới
+        </button>
+      </div>
       {orders.length === 0 ? (
         <div className="text-center py-16">
           <Package className="w-14 h-14 mx-auto text-muted-foreground/30 mb-4" />
