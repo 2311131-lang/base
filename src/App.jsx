@@ -22,7 +22,7 @@ import Profile from './pages/Profile';
 import FAQ from './pages/FAQ';
 import Warranty from './pages/Warranty';
 import AdminDashboard from './pages/admin/Dashboard';
-import AdminOrders from './pages/admin/Orders';
+import AdminOrders from './pages/admin/Order';
 import AdminCustomers from './pages/admin/Customers';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminWarranty from './pages/admin/AdminWarranty';
