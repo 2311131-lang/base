@@ -26,12 +26,20 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const load = async () => {
-      const [o, u] = await Promise.all([
-        base44.entities.Order.list("-created_date"),
-        base44.entities.User.list("-created_date"),
-      ]);
-      setOrders(o);
-      setUsers(u);
+      try {
+        const o = await base44.entities.Order.list("-created_date");
+        setOrders(o);
+        const uniqueCustomers = Object.values(
+          o.reduce((map, order) => {
+            const key = order.customer_email || order.customer_phone;
+            if (key && !map[key]) map[key] = order;
+            return map;
+          }, {})
+        );
+        setUsers(uniqueCustomers);
+      } catch (e) {
+        console.error("Dashboard load error:", e);
+      }
       setLoading(false);
     };
     load();
@@ -51,7 +59,6 @@ export default function AdminDashboard() {
   const totalRevenue = orders.filter(o => o.status !== "cancelled").reduce((s, o) => s + (o.total || 0), 0);
   const newOrders = orders.filter(o => o.status === "pending").length;
 
-  // Chart data - last 7 days
   const chartData = Array.from({ length: 7 }).map((_, i) => {
     const date = moment().subtract(6 - i, "days");
     const dayOrders = orders.filter(o => moment(o.created_date).isSame(date, "day"));
@@ -91,7 +98,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent orders */}
       <div className="bg-white border rounded-xl p-6">
         <h3 className="font-semibold mb-4">Đơn hàng gần đây</h3>
         <div className="overflow-x-auto">

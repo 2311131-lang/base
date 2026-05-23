@@ -1,7 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, ShoppingBag, Users, Star, Shield, LogOut, Droplets, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { base44 } from "@/api/base44Client";
 import { useEffect } from "react";
 
 const links = [
@@ -13,7 +12,7 @@ const links = [
 ];
 
 export default function AdminLayout() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -48,7 +47,7 @@ export default function AdminLayout() {
           <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent">
             <ChevronLeft className="w-4 h-4" /> Về trang chủ
           </Link>
-          <button onClick={() => base44.auth.logout("/")} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10">
+          <button onClick={() => logout()} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10">
             <LogOut className="w-4 h-4" /> Đăng xuất
           </button>
         </div>

@@ -2,10 +2,10 @@ import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import { User, Package, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { base44 } from "@/api/base44Client";
+
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -36,7 +36,7 @@ export default function Profile() {
             <span className="font-medium">Trang Admin</span>
           </Link>
         )}
-        <button onClick={() => base44.auth.logout("/")} className="w-full flex items-center gap-3 p-4 bg-white border rounded-xl hover:bg-destructive/5 transition-colors text-destructive">
+        <button onClick={() => logout()} className="w-full flex items-center gap-3 p-4 bg-white border rounded-xl hover:bg-destructive/5 transition-colors text-destructive">
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Đăng xuất</span>
         </button>

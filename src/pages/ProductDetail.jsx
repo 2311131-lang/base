@@ -112,11 +112,11 @@ export default function ProductDetail() {
           </div>
 
           <div className="flex gap-3 mb-6">
-            <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-primary hover:bg-primary/90">
-              <Zap className="w-4 h-4 mr-2" /> Mua ngay
-            </Button>
             <Button onClick={handleAddToCart} size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary/5">
               <ShoppingCart className="w-4 h-4 mr-2" /> Thêm vào giỏ
+            </Button>
+            <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-primary hover:bg-primary/90">
+              <Zap className="w-4 h-4 mr-2" /> Mua ngay
             </Button>
           </div>
 

@@ -1,228 +1,150 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
-import { toast } from "@/components/ui/use-toast";
+import { UserPlus, Mail, Lock, User, Loader2, Droplets } from "lucide-react";
 
 export default function Register() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const [full_name, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Mật khẩu xác nhận không khớp");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự");
       return;
     }
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
-      setShowOtp(true);
+      await register({ email, password, full_name });
+      navigate("/");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.message || "Đăng ký thất bại");
     } finally {
       setLoading(false);
     }
   };
-
-  const handleVerify = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.access_token) {
-        base44.auth.setToken(result.access_token);
-      }
-      window.location.href = "/";
-    } catch (err) {
-      setError(err.message || "Invalid verification code");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    setError("");
-    try {
-      await base44.auth.resendOtp(email);
-      toast({
-        title: "Code sent",
-        description: "Check your email for the new code.",
-      });
-    } catch (err) {
-      setError(err.message || "Failed to resend code");
-    }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
-  };
-
-  if (showOtp) {
-    return (
-      <AuthLayout
-        icon={Mail}
-        title="Verify your email"
-        subtitle={`We sent a code to ${email}`}
-      >
-        {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-            {error}
-          </div>
-        )}
-        <div className="flex justify-center mb-6">
-          <InputOTP
-            maxLength={6}
-            value={otpCode}
-            onChange={setOtpCode}
-            autoFocus
-            autoComplete="one-time-code"
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-        </div>
-        <Button
-          className="w-full h-12 font-medium"
-          onClick={handleVerify}
-          disabled={loading || otpCode.length < 6}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Verifying...
-            </>
-          ) : (
-            "Verify"
-          )}
-        </Button>
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Didn't receive the code?{" "}
-          <button onClick={handleResend} className="text-primary font-medium hover:underline">
-            Resend
-          </button>
-        </p>
-      </AuthLayout>
-    );
-  }
 
   return (
-    <AuthLayout
-      icon={UserPlus}
-      title="Create your account"
-      subtitle="Sign up to get started"
-      footer={
-        <>
-          Already have an account?{" "}
-          <Link to="/login" className="text-primary font-medium hover:underline">
-            Log in
-          </Link>
-        </>
-      }
-    >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-blue-50 px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-3 shadow-lg shadow-primary/25">
+            <Droplets className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold">Tạo tài khoản</h1>
+          <p className="text-muted-foreground text-sm mt-1">Đăng ký để bắt đầu mua sắm</p>
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="full_name">Họ và tên</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="full_name"
+                  type="text"
+                  autoComplete="name"
+                  autoFocus
+                  placeholder="Nguyễn Văn A"
+                  value={full_name}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Mật khẩu</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="Tối thiểu 6 ký tự"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Xác nhận mật khẩu</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full h-12 font-medium mt-2" disabled={loading}>
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Đang tạo tài khoản...</>
+              ) : (
+                <><UserPlus className="w-4 h-4 mr-2" />Tạo tài khoản</>
+              )}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            Đã có tài khoản?{" "}
+            <Link to="/login" className="text-primary font-medium hover:underline">
+              Đăng nhập
+            </Link>
+          </p>
         </div>
       </div>
-
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              autoFocus
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="confirm"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Creating account...
-            </>
-          ) : (
-            "Create account"
-          )}
-        </Button>
-      </form>
-    </AuthLayout>
+    </div>
   );
 }
