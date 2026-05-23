@@ -71,7 +71,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button size="sm" onClick={() => navigate("/login")} className="bg-primary hover:bg-primary/90">Đăng nhập</Button>
+            <Button size="sm" onClick={() => base44.auth.redirectToLogin(window.location.href)} className="bg-primary hover:bg-primary/90">Đăng nhập</Button>
           )}
 
           <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
